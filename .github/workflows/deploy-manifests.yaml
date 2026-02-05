@@ -7,6 +7,9 @@ on:
     paths:
       - 'students/week-*.yaml'
 
+permissions:
+  contents: write
+
 jobs:
   generate-and-deploy:
     runs-on: container-gitops-runners  # Uses the ARC runner scale set
