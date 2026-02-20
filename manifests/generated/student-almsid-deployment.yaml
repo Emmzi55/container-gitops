@@ -1,0 +1,69 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: student-almsid
+  namespace: container-course-week01
+  labels:
+    app: student-app
+    student: almsid
+    week: "1"
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: student-app
+      student: almsid
+  template:
+    metadata:
+      labels:
+        app: student-app
+        student: almsid
+    spec:
+      containers:
+      - name: student-app
+        image: ghcr.io/almsid/container-course-student:latest
+        ports:
+        - containerPort: 5000
+          name: http
+        env:
+        - name: STUDENT_NAME
+          value: "Mohammad Siddiqi"
+        - name: GITHUB_USERNAME
+          value: "almsid"
+        resources:
+          requests:
+            memory: "64Mi"
+            cpu: "50m"
+          limits:
+            memory: "256Mi"
+            cpu: "200m"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 5000
+          initialDelaySeconds: 10
+          periodSeconds: 30
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 5000
+          initialDelaySeconds: 5
+          periodSeconds: 10
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: student-almsid-svc
+  namespace: container-course-week01
+  labels:
+    student: almsid
+spec:
+  selector:
+    app: student-app
+    student: almsid
+  ports:
+  - port: 80
+    targetPort: 5000
+    protocol: TCP
+    name: http
